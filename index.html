@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e6fff">
+<title>Pacific VIP OS 12.0 · © 2026 Nailson Lima</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04121c; --pan:#0d2b3e; --pan2:#123448; --line:#1d4a63;
+  --txt:#eaf6ff; --dim:#8fb8cf; --mute:#5a8ba3;
+  --acc:#1e6fff; --acc2:#00d4ff; --gold:#ffd700; --ok:#10b981; --err:#ef4444;
+  --rad:14px; --rad-sm:10px; --sh:0 10px 30px rgba(0,0,0,.5);
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--txt);overflow:hidden;font-size:14px}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea{font-family:inherit;outline:none}
+
+/* BOOT */
+.boot{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(circle at 50% 40%,#082233,var(--bg));transition:opacity .5s}
+.boot-mark{width:120px;height:120px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:30px;display:grid;place-items:center;color:#fff;font-size:40px;font-weight:900;box-shadow:0 0 40px var(--acc)}
+.boot-title{font-size:24px;font-weight:800;color:var(--acc2)}
+.progress{width:240px;height:4px;background:var(--pan2);border-radius:10px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--acc2);transition:width .3s}
+
+/* SETUP / OVERLAYS */
+.overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 20%,rgba(30,111,255,.15),transparent 50%),var(--bg);padding:20px}
+.card{width:100%;max-width:420px;background:var(--pan);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--sh);animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+h2{font-size:22px;margin-bottom:10px;font-weight:800;color:var(--txt)}
+p{color:var(--dim);font-size:13px;line-height:1.6;margin-bottom:18px}
+label{display:block;font-size:12px;color:var(--dim);margin:14px 0 6px;font-weight:600}
+input[type=text],input[type=password],input[type=email]{width:100%;padding:12px;background:var(--pan2);border:1px solid var(--line);border-radius:10px;color:var(--txt);font-size:14px;transition:.2s}
+input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(30,111,255,.2)}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;padding:14px;border-radius:10px;font-weight:800;width:100%;margin-top:16px;display:block;text-align:center;font-size:14px;border:none;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-2px)}
+.btn-ghost{background:var(--pan2);border:1px solid var(--line);color:var(--txt);box-shadow:none}
+
+/* DESKTOP */
+.desktop{position:fixed;inset:0;display:flex;flex-direction:column;background:radial-gradient(circle at 10% 10%,rgba(30,111,255,.15),transparent 40%),var(--bg)}
+.topbar{height:50px;display:flex;align-items:center;padding:0 16px;background:var(--pan);border-bottom:1px solid var(--line);justify-content:space-between;z-index:100}
+.top-brand{font-weight:900;font-size:15px;color:var(--acc2);display:flex;align-items:center;gap:8px}
+.top-brand div{width:24px;height:24px;background:var(--acc);border-radius:6px;display:grid;place-items:center;color:#fff;font-size:12px}
+.top-status{font-size:12px;color:var(--dim);display:flex;gap:12px;align-items:center;font-weight:600}
+.cloud-pill{background:var(--pan2);padding:4px 10px;border-radius:12px;border:1px solid var(--line);cursor:pointer}
+
+/* GRID DE APPS */
+.app-grid{flex:1;padding:24px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:16px;align-content:start;overflow-y:auto}
+.app-icon{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 4px;border-radius:12px;transition:.15s;cursor:pointer;border:1px solid transparent}
+.app-icon:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+.app-icon:active{transform:scale(.92)}
+.app-icon span{font-size:36px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.app-icon b{font-size:11px;font-weight:600;text-align:center;color:var(--txt);line-height:1.2;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+
+/* JANELAS */
+.window-layer{position:fixed;inset:0;z-index:500;pointer-events:none;display:flex;align-items:center;justify-content:center;padding:16px}
+.window{width:100%;max-width:600px;max-height:85vh;background:var(--pan);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;pointer-events:auto;box-shadow:0 20px 50px rgba(0,0,0,.6);overflow:hidden;animation:win .2s ease}
+@keyframes win{from{transform:scale(.95) translateY(10px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.win-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--pan2);border-bottom:1px solid var(--line)}
+.win-title{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.win-close{width:32px;height:32px;border-radius:8px;background:var(--line);font-size:16px;display:grid;place-items:center;transition:.15s}
+.win-close:hover{background:var(--err);color:#fff}
+.win-body{flex:1;overflow-y:auto;padding:20px;font-size:13px}
+
+/* APP UI */
+.app-header{font-size:20px;font-weight:800;margin-bottom:16px;color:var(--txt);display:flex;align-items:center;gap:8px}
+.list-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--pan2);border-radius:10px;margin-bottom:8px;border:1px solid var(--line)}
+.list-item input[type=text]{flex:1;background:none;border:none;color:var(--txt);font-size:14px;padding:0}
+.list-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok)}
+.calc-display{background:var(--pan2);padding:24px;border-radius:12px;text-align:right;font-size:36px;margin-bottom:14px;border:1px solid var(--line);font-weight:300;overflow:hidden}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.calc-grid button{padding:16px;background:var(--pan2);border-radius:10px;font-size:18px;border:1px solid var(--line);color:var(--txt);transition:.1s}
+.calc-grid button:active{background:var(--line)}
+.chat-area{display:flex;flex-direction:column;height:380px}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:10px}
+.msg{padding:10px 14px;border-radius:14px;max-width:80%;font-size:13px;line-height:1.5}
+.msg.me{align-self:flex-end;background:var(--acc);color:#fff;border-bottom-right-radius:4px}
+.msg.them{align-self:flex-start;background:var(--pan2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-input{display:flex;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.chat-input input{flex:1;padding:12px;border-radius:20px;background:var(--pan2);border:1px solid var(--line);color:var(--txt)}
+.chat-input button{width:44px;height:44px;border-radius:50%;background:var(--acc);color:#fff;font-size:18px;display:grid;place-items:center;flex-shrink:0}
+
+/* IA FLUTUANTE */
+.ai-fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--acc2));color:#000;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 30px rgba(255,215,0,.4);cursor:pointer;z-index:600;border:none;transition:.2s}
+.ai-fab:hover{transform:scale(1.08)}
+.ai-panel{position:fixed;bottom:96px;right:24px;width:340px;max-height:500px;background:var(--pan);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;z-index:600;box-shadow:0 20px 50px rgba(0,0,0,.6);animation:win .2s ease}
+.ai-head{padding:14px 16px;background:var(--pan2);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0;font-weight:700}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ai-input-row{display:flex;gap:8px;padding:14px;border-top:1px solid var(--line)}
+.ai-input-row input{flex:1;padding:10px 14px;border-radius:20px;background:var(--pan2);border:1px solid var(--line);color:var(--txt);font-size:13px}
+.ai-input-row button{width:40px;height:40px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;flex-shrink:0}
+
+/* TOASTS */
+.toast-wrap{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center}
+.toast{background:var(--pan);border:1px solid var(--line);border-left:4px solid var(--acc);padding:12px 20px;border-radius:8px;font-size:13px;box-shadow:var(--sh);animation:drop .3s ease;white-space:nowrap;color:#fff;font-weight:500}
+.toast.ok{border-left-color:var(--ok)}
+.toast.err{border-left-color:var(--err)}
+@keyframes drop{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- SETUP SUPABASE -->
+<div id="setupCloud" class="overlay hidden">
+  <div class="card">
+    <h2>☁️ Configurar Nuvem</h2>
+    <p>Cole a URL e a Key do seu Supabase para ativar o Chat e o Sync. Se preferir, use offline.</p>
+    <label>Project URL</label>
+    <input type="text" id="inpUrl" placeholder="https://xyz.supabase.co">
+    <label>Publishable Key</label>
+    <input type="password" id="inpKey" placeholder="eyJhbG...">
+    <button class="btn" onclick="saveCloud(true)">Salvar e Iniciar</button>
+    <button class="btn btn-ghost" onclick="saveCloud(false)">Pular (Usar Local)</button>
+  </div>
+</div>
+
+<!-- ACEITE LEGAL -->
+<div id="setupLegal" class="overlay hidden">
+  <div class="card">
+    <h2>Termos de Uso</h2>
+    <p>Ao continuar, você concorda com os Termos e Privacidade do Pacific VIP OS. © 2026 Nailson Lima.</p>
+    <label style="display:flex;gap:10px;align-items:center;cursor:pointer;margin-top:20px">
+      <input type="checkbox" id="chkLegal" onchange="document.getElementById('btnLegalNext').disabled = !this.checked"> Aceito os termos
+    </label>
+    <button class="btn" id="btnLegalNext" onclick="showSetupProfile()" disabled>Continuar →</button>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div id="setupProfile" class="overlay hidden">
+  <div class="card">
+    <h2>Quem é você?</h2>
+    <label>Seu nome</label>
+    <input type="text" id="inpName" value="Usuário" onkeydown="if(event.key==='Enter') finishSetup()">
+    <button class="btn" onclick="finishSetup()">Concluir e Entrar</button>
+  </div>
+</div>
+
+<!-- BOOT -->
+<div id="boot" class="boot">
+  <div class="boot-mark">P</div>
+  <div class="boot-title">Pacific VIP OS 12.0</div>
+  <div class="progress"><span id="bootBar"></span></div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop" class="desktop hidden">
+  <header class="topbar">
+    <div class="top-brand"><div>P</div> Pacific VIP</div>
+    <div class="top-status">
+      <div class="cloud-pill" id="cloudBadge" onclick="openApp('settings')">☁️ Local</div>
+      <span id="clock">00:00</span>
+    </div>
+  </header>
+  
+  <div id="appGrid" class="app-grid"></div>
+</div>
+
+<!-- LAYER ONDE AS JANELAS ABREM -->
+<div id="windowLayer" class="window-layer hidden"></div>
+
+<!-- IA FLUTUANTE -->
+<button id="aiFab" class="ai-fab hidden" onclick="toggleAI()">🤖</button>
+<div id="aiPanel" class="ai-panel hidden">
+  <div class="ai-head">
+    <span>🤖 Assistente VIP</span>
+    <button onclick="toggleAI()" style="font-size:16px">✕</button>
+  </div>
+  <div id="aiMsgs" class="ai-msgs"></div>
+  <div class="ai-input-row">
+    <input type="text" id="aiInput" placeholder="Pergunte algo..." onkeydown="if(event.key==='Enter') sendAI()">
+    <button onclick="sendAI()">➤</button>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ==========================================
+// ESTADO E BANCO DE DADOS (BLINDADO CONTRA LOOP)
+// ==========================================
+// Usando um sistema de memória que tenta o localStorage, mas não trava se falhar.
+let MEMORY_DB = {}; 
+const store = {
+  get: (k, d) => { 
+    try { 
+      const v = localStorage.getItem('pv12_'+k); 
+      if (v !== null) return JSON.parse(v);
+      return MEMORY_DB[k] !== undefined ? MEMORY_DB[k] : d;
+    } catch { return d; } 
+  },
+  set: (k, v) => { 
+    MEMORY_DB[k] = v; // Salva na memória SEMPRE
+    try { localStorage.setItem('pv12_'+k, JSON.stringify(v)); } catch(e) {} 
+  }
+};
+
+const State = {
+  user: store.get('user', { name: 'Usuário' }),
+  supaUrl: store.get('supaUrl', ''),
+  supaKey: store.get('supaKey', ''),
+  notes: store.get('notes', ['Bem-vindo ao Pacific VIP!']),
+  tasks: store.get('tasks', [{text:'Testar o sistema', done:false}])
+};
+
+let supabaseClient = null;
+let currentUser = null;
+
+// ==========================================
+// HELPERS
+// ==========================================
+const $ = s => document.querySelector(s);
+const toast = (m, t='') => {
+  const el = document.createElement('div');
+  el.className = 'toast ' + t;
+  el.textContent = m;
+  $('#toastWrap').append(el);
+  setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 2500);
+};
+
+// ==========================================
+// FLUXO DE INICIALIZAÇÃO (SEM RECARREGAR)
+// ==========================================
+let prog = 0;
+const bootInt = setInterval(() => {
+  prog += 20;
+  $('#bootBar').style.width = prog + '%';
+  if(prog >= 100) {
+    clearInterval(bootInt);
+    setTimeout(() => {
+      $('#boot').style.display = 'none';
+      if(!store.get('initialized')) {
+        if(State.supaUrl) $('#setupLegal').classList.remove('hidden');
+        else $('#setupCloud').classList.remove('hidden');
+      } else {
+        startDesktop();
+      }
+    }, 300);
+  }
+}, 100);
+
+// SALVA NUVEM (AGORA NÃO RECARREGA NADA)
+function saveCloud(useCloud) {
+  if(useCloud) {
+    State.supaUrl = $('#inpUrl').value.trim();
+    State.supaKey = $('#inpKey').value.trim();
+    store.set('supaUrl', State.supaUrl);
+    store.set('supaKey', State.supaKey);
+  }
+  $('#setupCloud').classList.add('hidden');
+  $('#setupLegal').classList.remove('hidden');
+}
+
+// MOSTRA PERFIL
+function showSetupProfile() {
+  $('#setupLegal').classList.add('hidden');
+  $('#setupProfile').classList.remove('hidden');
+  setTimeout(() => $('#inpName').focus(), 100);
+}
+
+// CONCLUI SETUP (AQUI FOI A CORREÇÃO DO LOOP)
+function finishSetup() {
+  let name = $('#inpName').value.trim();
+  if(!name) name = 'Usuário';
+  State.user.name = name;
+  store.set('user', State.user);
+  store.set('initialized', true); // Marca como iniciado
+  
+  $('#setupProfile').classList.add('hidden');
+  startDesktop(); // Chama o desktop IMEDIATAMENTE, sem reload
+}
+
+// ==========================================
+// SUPABASE
+// ==========================================
+async function initSupabase() {
+  if(!State.supaUrl || !State.supaKey) return;
+  try {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    supabaseClient = createClient(State.supaUrl, State.supaKey);
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(session) currentUser = session.user;
+    updateCloudBadge();
+  } catch(e) { console.error('Supabase:', e); }
+}
+
+function updateCloudBadge() {
+  const b = $('#cloudBadge');
+  if(!b) return;
+  if(currentUser) {
+    b.innerHTML = '☁️ Online';
+    b.style.color = 'var(--ok)';
+  } else if(State.supaUrl) {
+    b.innerHTML = '☁️ Login';
+    b.style.color = 'var(--gold)';
+  } else {
+    b.innerHTML = '☁️ Local';
+  }
+}
+
+// ==========================================
+// DESKTOP E ÍCONES
+// ==========================================
+const Apps = {
+  messenger: { title: 'Mensagens', icon: '💬', render: renderMessenger },
+  notes: { title: 'Notas', icon: '🗒️', render: renderNotes },
+  tasks: { title: 'Tarefas', icon: '✅', render: renderTasks },
+  calculator: { title: 'Calculadora', icon: '🧮', render: renderCalc },
+  settings: { title: 'Ajustes', icon: '⚙️', render: renderSettings }
+};
+
+function startDesktop() {
+  $('#desktop').classList.remove('hidden');
+  $('#aiFab').classList.remove('hidden');
+  
+  const grid = $('#appGrid');
+  grid.innerHTML = '';
+  Object.keys(Apps).forEach(id => {
+    grid.innerHTML += `
+      <div class="app-icon" onclick="openApp('${id}')">
+        <span>${Apps[id].icon}</span>
+        <b>${Apps[id].title}</b>
+      </div>
+    `;
+  });
+  
+  initSupabase();
+  setInterval(() => {
+    const d = new Date();
+    const c = $('#clock');
+    if(c) c.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }, 1000);
+}
+
+// ==========================================
+// GERENCIADOR DE JANELAS
+// ==========================================
+function openApp(id) {
+  const app = Apps[id];
+  if(!app) return;
+  
+  const layer = $('#windowLayer');
+  layer.classList.remove('hidden');
+  layer.innerHTML = ''; 
+  
+  const win = document.createElement('div');
+  win.className = 'window';
+  win.innerHTML = `
+    <div class="win-head">
+      <div class="win-title">${app.icon} ${app.title}</div>
+      <button class="win-close" onclick="closeApp()">✕</button>
+    </div>
+    <div class="win-body" id="appBody"></div>
+  `;
+  layer.append(win);
+  
+  app.render($('#appBody'));
+}
+
+function closeApp() {
+  $('#windowLayer').classList.add('hidden');
+  $('#windowLayer').innerHTML = '';
+}
+
+// ==========================================
+// APLICATIVOS
+// ==========================================
+
+function renderMessenger(body) {
+  if(!State.supaUrl) {
+    body.innerHTML = `
+      <div class="app-header">Mensagens</div>
+      <p style="text-align:center;margin:40px 0;color:var(--dim)">A nuvem não está configurada.</p>
+      <button class="btn" onclick="closeApp(); openApp('settings')">⚙️ Configurar Nuvem</button>
+    `;
+    return;
+  }
+  
+  if(!currentUser) {
+    body.innerHTML = `
+      <div class="app-header">Login</div>
+      <p>Digite seu e-mail para receber um link mágico.</p>
+      <input type="email" id="magicEmail" placeholder="seu@email.com" style="width:100%;padding:12px;border-radius:8px;background:var(--pan2);border:1px solid var(--line);color:var(--txt);margin-bottom:10px">
+      <button class="btn" onclick="sendMagicLink()">✉️ Enviar Link</button>
+    `;
+    return;
+  }
+  
+  body.innerHTML = `
+    <div class="app-header">Chat Global</div>
+    <div class="chat-area">
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg them">Conectado como ${currentUser.email}</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Sua mensagem..." onkeydown="if(event.key==='Enter') sendChat()">
+        <button onclick="sendChat()">➤</button>
+      </div>
+    </div>
+  `;
+}
+
+function sendMagicLink() {
+  const email = $('#magicEmail').value;
+  if(!email) return toast('Digite o e-mail', 'err');
+  toast('Enviando link...');
+  supabaseClient.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } })
+    .then(() => toast('Link enviado! Verifique seu e-mail.', 'ok'))
+    .catch(err => toast(err.message, 'err'));
+}
+
+function sendChat() {
+  const input = $('#chatInput');
+  if(!input.value.trim()) return;
+  const msgs = $('#chatMsgs');
+  msgs.innerHTML += `<div class="msg me">${input.value}</div>`;
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function renderNotes(body) {
+  body.innerHTML = `<div class="app-header">Notas</div><div id="notesList" style="margin-bottom:20px"></div>
+    <button class="btn" onclick="addNote()">+ Nova Nota</button>`;
+  drawNotes();
+}
+
+function drawNotes() {
+  const list = $('#notesList');
+  if(!list) return;
+  list.innerHTML = '';
+  State.notes.forEach((n, i) => {
+    list.innerHTML += `
+      <div class="list-item">
+        <input type="text" value="${n}" onchange="updateNote(${i}, this.value)">
+        <button style="color:var(--err);font-size:16px" onclick="delNote(${i})">✕</button>
+      </div>
+    `;
+  });
+}
+
+function addNote() { State.notes.push('Nova nota...'); store.set('notes', State.notes); drawNotes(); }
+function updateNote(i, v) { State.notes[i] = v; store.set('notes', State.notes); }
+function delNote(i) { State.notes.splice(i, 1); store.set('notes', State.notes); drawNotes(); }
+
+function renderTasks(body) {
+  body.innerHTML = `<div class="app-header">Tarefas</div><div id="tasksList" style="margin-bottom:20px"></div>
+    <button class="btn" onclick="addTask()">+ Nova Tarefa</button>`;
+  drawTasks();
+}
+
+function drawTasks() {
+  const list = $('#tasksList');
+  if(!list) return;
+  list.innerHTML = '';
+  State.tasks.forEach((t, i) => {
+    list.innerHTML += `
+      <div class="list-item">
+        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})">
+        <input type="text" value="${t.text}" style="${t.done ? 'text-decoration:line-through;opacity:.5' : ''}" onchange="updateTask(${i}, this.value)">
+        <button style="color:var(--err);font-size:16px" onclick="delTask(${i})">✕</button>
+      </div>
+    `;
+  });
+}
+
+function addTask() { State.tasks.push({text:'Nova tarefa', done:false}); store.set('tasks', State.tasks); drawTasks(); }
+function toggleTask(i) { State.tasks[i].done = !State.tasks[i].done; store.set('tasks', State.tasks); drawTasks(); }
+function updateTask(i, v) { State.tasks[i].text = v; store.set('tasks', State.tasks); }
+function delTask(i) { State.tasks.splice(i, 1); store.set('tasks', State.tasks); drawTasks(); }
+
+function renderCalc(body) {
+  body.innerHTML = `
+    <div class="app-header">Calculadora</div>
+    <div class="calc-display" id="calcDisp">0</div>
+    <div class="calc-grid">
+      ${['C','⌫','%','/','7','8','9','*','4','5','6','-','1','2','3','+','0','.','=','+'].map(k => 
+        `<button onclick="calcPress('${k}')">${k}</button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+function calcPress(k) {
+  const d = $('#calcDisp');
+  if(k === 'C') d.textContent = '0';
+  else if(k === '⌫') d.textContent = d.textContent.length > 1 ? d.textContent.slice(0,-1) : '0';
+  else if(k === '=') {
+    try { d.textContent = eval(d.textContent); } catch { d.textContent = 'Erro'; }
+  } else {
+    d.textContent = d.textContent === '0' && k !== '.' ? k : d.textContent + k;
+  }
+}
+
+function renderSettings(body) {
+  body.innerHTML = `
+    <div class="app-header">Ajustes</div>
+    
+    <h3 style="font-size:14px;margin-bottom:10px;color:var(--acc2)">Conexão Supabase</h3>
+    <label>Project URL</label>
+    <input type="text" id="setUrl" value="${State.supaUrl}" placeholder="https://xyz.supabase.co">
+    <label>Publishable Key</label>
+    <input type="password" id="setKey" value="${State.supaKey}">
+    <button class="btn" onclick="saveSettings()">💾 Salvar e Recarregar</button>
+    
+    <h3 style="font-size:14px;margin-top:30px;margin-bottom:10px;color:var(--err)">Zona de Perigo</h3>
+    <button class="btn btn-ghost" onclick="if(confirm('Apagar todos os dados?')){localStorage.clear(); location.reload()}">Limpar Dados</button>
+    
+    <p style="margin-top:30px;text-align:center;font-size:10px;color:var(--mute)">© 2026 Nailson Lima · v12.0</p>
+  `;
+}
+
+function saveSettings() {
+  State.supaUrl = $('#setUrl').value.trim();
+  State.supaKey = $('#setKey').value.trim();
+  store.set('supaUrl', State.supaUrl);
+  store.set('supaKey', State.supaKey);
+  toast('Salvo! Recarregando...', 'ok');
+  setTimeout(() => location.reload(), 1000);
+}
+
+// ==========================================
+// IA FLUTUANTE
+// ==========================================
+function toggleAI() {
+  const p = $('#aiPanel');
+  if(p.classList.contains('hidden')) {
+    p.classList.remove('hidden');
+    $('#aiInput').focus();
+  } else {
+    p.classList.add('hidden');
+  }
+}
+
+function sendAI() {
+  const input = $('#aiInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  
+  const msgs = $('#aiMsgs');
+  msgs.innerHTML += `<div class="msg me">${text}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  
+  setTimeout(() => {
+    let reply = 'Desculpe, ainda não sei responder isso.';
+    const t = text.toLowerCase();
+    if(t.includes('hora')) reply = `Agora são ${new Date().toLocaleTimeString()}`;
+    if(t.includes('nota')) reply = `Você tem ${State.notes.length} notas salvas.`;
+    if(t.includes('tarefa')) reply = `Você tem ${State.tasks.length} tarefas.`;
+    if(t.includes('ajuda')) reply = 'Posso ver horas, notas, tarefas. Tente "criar nota: teste".';
+    if(t.includes('criar nota')) {
+      const n = text.replace(/criar nota:/i, '').trim() || 'Nova';
+      State.notes.push(n); store.set('notes', State.notes); reply = `Nota "${n}" criada!`;
+    }
+    msgs.innerHTML += `<div class="msg them">${reply}</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 400);
+}
+</script>
+</body>
+</html>
